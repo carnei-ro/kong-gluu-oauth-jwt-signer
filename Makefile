@@ -87,9 +87,10 @@ req-aux:
 config:
 	@curl -s -X POST http://localhost:8001/services/ -d 'name=httpbin' -d url=https://httpbin.org/anything
 	@curl -s -X POST http://localhost:8001/services/httpbin/routes -d 'name=root' -d 'paths[]=/'
+	@curl -s -X POST http://localhost:8001/routes/root/plugins -d 'name=kong-oauth-jwt-plugin' -d 'config.issuer_uri=/auth/gluu/callback' -d 'config.use_cache_authz=false'
 	@curl -s -X POST http://localhost:8001/services/ -d 'name=oauth' -d url=http://127.0.0.1
 	@curl -s -X POST http://localhost:8001/services/oauth/routes -d 'paths[]=/auth/gluu/callback' -d "name=callback"
-	@curl -i -X POST http://localhost:8001/services/oauth/plugins -F "name=${NAME}" -F "config.client_secret=$$(grep client_secret cred | awk '{print $$NF}')" -F "config.client_id=$$(grep client_id cred | awk '{print $$NF}')" -F "config.secure_cookies=false" -F "config.http_only_cookies=false" -F "config.gluu_url=https://login.carnei.ro" -F "config.callback_uri=/auth/gluu/callback"
+	@curl -i -X POST http://localhost:8001/services/oauth/plugins -d "name=${NAME}" -d "config.client_secret=$$(grep client_secret cred | awk '{print $$NF}')" -d "config.client_id=$$(grep client_id cred | awk '{print $$NF}')" -d "config.secure_cookies=false" -d "config.http_only_cookies=false" -d "config.gluu_url=https://login.carnei.ro" -d "config.callback_uri=/auth/gluu/callback" -d "config.scopes[]=email" -d "config.scopes[]=openid" -d "config.scopes[]=profile" -d "config.scopes[]=kong_permission" 
 
 config-jwt-remove:
 	@curl -i -X DELETE http://localhost:8001/plugins/$$(curl -s http://localhost:8001/plugins/ | jq -r ".data[] |  select (.name|test(\"${NAME}\")) .id")

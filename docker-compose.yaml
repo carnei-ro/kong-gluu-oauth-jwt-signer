@@ -19,7 +19,7 @@ services:
       retries: 5
 
   kong-migration:
-    image: kong:1.1.2-centos
+    image: kong:2.0.3-centos
     command: "kong migrations bootstrap ; kong migrations list ; kong migrations up"
     restart: on-failure
     environment:
@@ -31,7 +31,7 @@ services:
 
 
   kong:
-    image: kong:1.1.2-centos
+    image: kong:2.0.3-centos
     depends_on:
       - kong-database
     environment:
@@ -48,21 +48,27 @@ services:
       - KONG_VITALS=off
       - KONG_PORTAL=off
       - KONG_LOG_LEVEL=debug
+      - KONG_NGINX_HTTP_LUA_SHARED_DICT=oauth_jwt_shared_dict 32m
+      - KONG_OAUTH_JWT_PLUGIN_PUBLIC_KEYS={"12345678-1234-1234-1234-123456789ABC":"LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUEzOUk3QndkZTdzV3hsRmdGdElhVQpiTDVBUjY2WWJ0MmJmazFqREFDYjd4b25mam54Sm5nZXdBSnZtTWxmYzBtV0owVll1TVJnalExUExsUUNqL0o3ClNZR1UydnNtS0I3VjIyVjU4Yjd6Z1BCVGtNNDFWYytOZks2M3dGVUdYbUQrdzdBSTFiOXRXZzhORXk3UkRyaW0KZldmUnhLNGlUSGZrSnpMYXJ6c3MzRHVzUzRNbTRJVXIzc2ZXNDFVZVhGRE1ubnc1RWRLbHdvd1lFT3RaaXJJbQpZU1QrZDE5QWFlaDVOMU94YldoVWxqci9NYnFXNXlWV2RPaEZqZENKeDJQZWgxdU9JUUlScjV0U0Rva2kzZ0FLClRWRnpyV3ZoZE51SGw1NTdKV2FTVnJxano5TGt0VEUyN3lKUlhtbGZmK1BSb0VhcmdGY0s1RnhzdDFlSnRkYTIKT1FJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=="}
       - KONG_PLUGINS=bundled,${NAME}
-      - KONG_NGINX_MAIN_ENV=KONG_GLUU_OAUTH_JWT_SIGNER_PRIVATE_KEYS
+      #- KONG_PLUGINS=bundled,${NAME},kong-oauth-jwt-plugin
+      - KONG_NGINX_MAIN_INCLUDE=/plugin-development/main.conf
       - KONG_GLUU_OAUTH_JWT_SIGNER_PRIVATE_KEYS={"12345678-1234-1234-1234-123456789ABC":"LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBMzlJN0J3ZGU3c1d4bEZnRnRJYVViTDVBUjY2WWJ0MmJmazFqREFDYjd4b25mam54CkpuZ2V3QUp2bU1sZmMwbVdKMFZZdU1SZ2pRMVBMbFFDai9KN1NZR1UydnNtS0I3VjIyVjU4Yjd6Z1BCVGtNNDEKVmMrTmZLNjN3RlVHWG1EK3c3QUkxYjl0V2c4TkV5N1JEcmltZldmUnhLNGlUSGZrSnpMYXJ6c3MzRHVzUzRNbQo0SVVyM3NmVzQxVWVYRkRNbm53NUVkS2x3b3dZRU90WmlySW1ZU1QrZDE5QWFlaDVOMU94YldoVWxqci9NYnFXCjV5VldkT2hGamRDSngyUGVoMXVPSVFJUnI1dFNEb2tpM2dBS1RWRnpyV3ZoZE51SGw1NTdKV2FTVnJxano5TGsKdFRFMjd5SlJYbWxmZitQUm9FYXJnRmNLNUZ4c3QxZUp0ZGEyT1FJREFRQUJBb0lCQVFDUVo0Zno2ZnFDM1FQTQpiTm9KZGdiTy9oUms2eTJuNGN5UHVZZ2MxMHZFQVVEWHZMUnNtSFZtZG12ZnpKU0x3ajloU09tTUZBOGpFaUl6CkJycThlcnEyV3lkWi9VM0o5dE1OZ1RRakY0cnRkcUREdlhkRnpPcEJOa3lSaDRuYlhJTWlhREhiRG0yVC9ELzQKVDIxTUxUQWxtdFVKS3p3dnorNWdwL3ZWc0wwcHZSVXV2ODE1bTRnUVJFN2laeEFPVGJIRk90WmVpalhHNnUrYgpOck5XQ2xoSkc5NWlTakp5TllCRnFrNGcxMjRrMG8reUVob2xjRlcrdWRJNG9PdWxPMVFiUlA5V3c5c0laQUtQCkFhYlZZbXlXZUx6MU5nTHhCYlpiYkRlSVVkTnNMbkhHRHVvMXBTZHZJME9CbUU0dFc4ZGNpeTA0SC9pU2hhUHcKR2Jib2hZb3hBb0dCQVBtcUhtL3lySTYxUG5uTjFlVkpiQXphWlZHckJGa1EwMGNQMXYrQTg5bFBRc25FKy90RAp6d1Z3WVU2b1RITEpUMlBhVCtURXQ4YUhhd1hPbUtrdUhpWDA5Q1dFNElkaXE2YUd6RWgvUEdlTllBRWI4ME9zCi9CZjBuQXRySWZyMmlUUmZBczZFOTZKV1U2L1Y1OXF5TDJMTHg1Sm5KWFNTeVU0NjNBVU5zb3pGQW9HQkFPV0EKT2k1Rmt6SVhOU0NTVWx6Z3A4R1ZNQ1cyTFJSNHprenJhak5NR0k4SHYxOGt3SytLaE10cmxPL09xK3JWQ1ByVgptVURROW1qZ1RKdWg2NExRZ2RiczNOeHpjelczN2hpZ0NHenZsMG1BZW4vVmRuWEVTTndiZWpNYmRyck9ha0FmClJnTnoyZEVkaDBhR0VTK2VtNG5yOTE3NGpaU0pJUU9uajl4dXhFTGxBb0dBVTVtVWNaWUlGQTA2cTF5eWFBR3EKN2E3ZnlIWUVrYkpobk9ULzhEU0U4dHBvbWRtZEt1anMxSHhxQ1FXdis2dlBLcmQ2a3pjUDlxbDN1ODBQTDI5aQo1d0RjRkFnbml3NE9Qa2ZhOWRldEtWdWNyeUpsMWQ2QjE1K3Y5TjdkMVFSaXN5ZXhiK2YwWithU1JVblNSbGZ1CktCM21hTzZqQ3lMdng0Tk1FMkVmemFVQ2dZQkhyQ0wvWG1VWXlKeWozbTV3YVF5YTdTK0xKM2l1b3dleWgvYXoKckhraStnVnUvamhhMmdTY3pxMUZzeUtIaFI1M3o0czc3Y1oyZkU0UWNLSHZTWlN5L1dnQVJPSGZEZUVDdWIvSAozWTgrdWl3SGppK2ZtYnd6V1RWeGpvc216ZDNxeHBtRDdJTkN4bGovMGxDOXNXZmJ5K0NHUFZOaDV1MXppYm5vCjJvTGFiUUtCZ1FDWnhRMXI0eXhYQURGbkh2MWhaOUlVNWZpbHl6TllISzR0eUV4ajdEcmlSM2p6bWUyVkVteXEKT0lXNEJCeE8wOGY1V3dpSFpITWdBZ1Q5WHFNd1pmaHRvQTcxNzIwbnVYZDZDMjF0U016VFZHdzQwN0E5SE9xNwpCVklGNWdUdUh4dThoRnFwS1pHTzJadkpjUkwzQUdlaUtob1pBQkJpNnBzenloYTdhNWJuYnc9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo="}
     volumes:
       - plugin-development:/plugin-development
+    user: "0:0"
     command:
       - /bin/bash
       - -c
       - |
         sleep 12
-        mkdir -p /usr/local/lib/luarocks/rocks/${NAME}/${VERSION}/
-        ln -s /plugin-development/${NAME}-${VERSION}.rockspec /usr/local/lib/luarocks/rocks/${NAME}/${VERSION}/${NAME}-${VERSION}.rockspec
+        mkdir -p /usr/local/lib/luarocks/rocks-5.1/${NAME}/${VERSION}/
+        # mkdir -p /usr/local/lib/luarocks/rocks-5.1/kong-oauth-jwt-plugin/0.0-7/
+        ln -s /plugin-development/${NAME}-${VERSION}.rockspec /usr/local/lib/luarocks/rocks-5.1/${NAME}/${VERSION}/${NAME}-${VERSION}.rockspec
+        #  ln -s /plugin-development/kong-oauth-jwt-plugin-0.0-7.rockspec /usr/local/lib/luarocks/rocks-5.1/kong-oauth-jwt-plugin/0.0-7/kong-oauth-jwt-plugin-0.0-7.rockspec
         ln -s /plugin-development/src /usr/local/share/lua/5.1/kong/plugins/${NAME}
+        #  ln -s /plugin-development/jwt-src /usr/local/share/lua/5.1/kong/plugins/kong-oauth-jwt-plugin
         sed -i "/proxy_set_header.*X-Forwarded-For/d; /proxy_set_header.*X-Real-IP/d;" /usr/local/share/lua/5.1/kong/templates/nginx_kong.lua
-        ln -s /plugin-development/jwt_signer_private_keys.json /etc/kong/jwt_signer_private_keys.json
         /usr/local/bin/kong start --run-migrations --vv
     ports:
       - "80:8000"

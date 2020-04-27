@@ -172,12 +172,13 @@ function plugin:access(conf)
             end
 
             local claims={}
-            claims["sub"] = profile["sub"]
+            claims["sub"] = profile["email"]
             claims["iss"] = issuer
             claims["iat"] = ngx.time()
             claims["exp"] = ngx.time() + jwt_validity
             claims["email_verified"] = profile["email_verified"]
-            claims["email"] = profile["email"]
+            claims["user"] = profile["email"]:match("([^@]+)@.+")
+            claims["domain"] = profile["email"]:match("[^@]+@(.+)")
             claims["name"] = profile["name"]
             claims["family_name"] = profile["family_name"]
             claims["given_name"] = profile["given_name"]
@@ -217,6 +218,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-1"
+plugin.VERSION = "0.0-2"
 
 return plugin
