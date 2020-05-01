@@ -38,6 +38,9 @@ local function load_private_keys()
   return private_keys
 end
 
+local env_client_id = os_getenv("KONG_GLUU_OAUTH_JWT_SIGNER_CLIENT_ID")
+local env_client_secret = os_getenv("KONG_GLUU_OAUTH_JWT_SIGNER_CLIENT_SECRET")
+
 local private_keys, err_pk = load_private_keys()
 if err_pk then
   ngx_log(ngx_ERR,   ">>>>>>>>>>> BE CAREFUL: PRIVATE KEYS NOT LOADED CORRECTLY. THIS MAY CAUSE SOME UNEXPECTED 500 RETURNS. <<<<<<<<<<<")
@@ -57,8 +60,6 @@ function plugin:access(conf)
     local uri                  = uri_args['uri'] or ""
     local scheme               = ngx.var.scheme
 
-    local client_id            = conf['client_id']
-    local client_secret        = conf['client_secret']
     local jwt_validity         = conf['jwt_validity']
     local cookie_name          = conf['cookie_name']
     local secure_cookies       = conf['secure_cookies']
@@ -68,7 +69,6 @@ function plugin:access(conf)
     local private_key_id       = conf['private_key_id']
     local ssl_verify           = conf['ssl_verify']
     local cb_scheme            = conf['callback_scheme'] or scheme
-    local key                  = private_keys[private_key_id]
     local cb_server_name       = ngx.req.get_headers()["Host"]
     local cb_url               = cb_scheme .. "://" .. cb_server_name .. cb_uri
     local redirect_url         = cb_scheme .. "://" .. cb_server_name .. ngx.var.request_uri
@@ -77,6 +77,33 @@ function plugin:access(conf)
     local authorize_url        = conf['gluu_url'] .. '/oxauth/restv1/authorize'
     local access_token_url     = conf['gluu_url'] .. '/oxauth/restv1/token'
     local userinfo_url         = conf['gluu_url'] .. '/oxauth/restv1/userinfo'
+
+    local key, client_id, client_secret = nil, nil, nil
+    if private_keys[private_key_id] then
+        key = private_keys[private_key_id]
+    elseif conf.private_keys[private_key_id] then
+        key = ngx_b64.decode_base64url(conf.private_keys[private_key_id])
+    end
+    if env_client_id then
+        client_id = env_client_id
+    elseif conf['client_id'] then
+        client_id = conf['client_id']
+    end
+    if env_client_secret then
+        client_secret = env_client_secret
+    elseif conf['client_secret'] then
+        client_secret = conf['client_secret']
+    end
+
+    if not key then
+        kong.response.exit(500, "key " .. private_key_id .. " not found")
+    end
+    if not client_id then
+        kong.response.exit(500, "configure client_id plugin param or env var KONG_GLUU_OAUTH_JWT_SIGNER_CLIENT_ID")
+    end
+    if not client_secret then
+        kong.response.exit(500, "configure client_secret plugin param or env var KONG_GLUU_OAUTH_JWT_SIGNER_CLIENT_SECRET")
+    end
 
     local function sign(claims, key, private_key_id)
         local headers={}
@@ -218,6 +245,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-2"
+plugin.VERSION = "0.0-3"
 
 return plugin

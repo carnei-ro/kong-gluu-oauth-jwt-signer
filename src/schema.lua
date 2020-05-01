@@ -10,11 +10,11 @@ return {
           fields = {
             { client_id = {
                 type = "string",
-                required = true
+                required = false
             } },
             { client_secret = {
                 type = "string",
-                required = true
+                required = false
             } },
             { jwt_validity = {
                 type = "number",
@@ -69,7 +69,16 @@ return {
                 elements = { type = "string" },
                 default = { "email", "profile", "openid" },
                 required = true
-            } }
+            } },
+            { private_keys = {
+                type = "map",
+                keys = { type = "string" },
+                required = false,
+                values = {
+                    type = "string",
+                    required = true,
+                }
+            } },
         },
     },
   },
