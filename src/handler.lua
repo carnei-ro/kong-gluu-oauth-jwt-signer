@@ -113,7 +113,15 @@ function plugin:access(conf)
         local h=encode_base64(json.encode(headers)):gsub("==$", ""):gsub("=$", "")
         local c = encode_base64(json.encode(claims)):gsub("==$", ""):gsub("=$", "")
         local data = h .. '.' .. c
-        return data .. "." .. encode_base64(openssl_pkey.new(key):sign(openssl_digest.new("sha512"):update(data))):gsub("+", "-"):gsub("/", "_"):gsub("==$", ""):gsub("=$", "")
+        
+        local pkey = openssl_pkey.new(key)
+        local digest = openssl_digest.new("sha512")
+        digest:update(data)
+        local signature, err = pkey:sign(digest)
+        if err then
+          return nil, err
+        end
+        return(data .. ".".. encode_base64(signature):gsub("+", "-"):gsub("/", "_"):gsub("==$", ""):gsub("=$", ""))
     end
 
     local function redirect_to_auth()
