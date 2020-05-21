@@ -5,8 +5,8 @@ local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
 local json                 = require("cjson")
 local http                 = require("resty.http")
 
-local openssl_digest       = require "openssl.digest"
-local openssl_pkey         = require "openssl.pkey"
+local openssl_digest       = require "resty.openssl.digest"
+local openssl_pkey         = require "resty.openssl.pkey"
 local pl                   = require('pl.pretty')
 local ngx_log              = ngx.log
 local ngx_ERR              = ngx.ERR
@@ -245,6 +245,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-3"
+plugin.VERSION = "0.0-4"
 
 return plugin
