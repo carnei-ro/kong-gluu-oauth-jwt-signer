@@ -8,6 +8,7 @@ Plugin priority: 1000.
 
 **THIS PLUGINS DEPENDS ON THE CAPABILITY OF [INJECT DIRECTIVES INTO MAIN](https://docs.konghq.com/2.0.x/configuration/#injecting-nginx-directives) - IT HAS STARTED IN KONG 2.0**
 
+**From version 0.0-4 it requires Kong >= 2.1 due to lua-resty-openssl structure**
 
 summary: generate JWT when a gluu oauth flow is valid  
 
