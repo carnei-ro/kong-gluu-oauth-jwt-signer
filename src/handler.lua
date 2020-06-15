@@ -2,7 +2,8 @@ local BasePlugin = require "kong.plugins.base_plugin"
 
 local plugin_name = ({...})[1]:match("^kong%.plugins%.([^%.]+)")
 
-local json                 = require("cjson")
+local json                 = require("cjson").new()
+json.decode_array_with_array_mt(true)
 local http                 = require("resty.http")
 
 local openssl_digest       = require "openssl.digest"
