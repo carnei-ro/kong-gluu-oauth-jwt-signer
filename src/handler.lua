@@ -85,15 +85,15 @@ function plugin:access(conf)
     elseif conf.private_keys[private_key_id] then
         key = ngx_b64.decode_base64url(conf.private_keys[private_key_id])
     end
-    if env_client_id then
-        client_id = env_client_id
-    elseif conf['client_id'] then
+    if conf['client_id'] then
         client_id = conf['client_id']
+    elseif env_client_id then
+        client_id = env_client_id
     end
-    if env_client_secret then
-        client_secret = env_client_secret
-    elseif conf['client_secret'] then
+    if conf['client_secret'] then
         client_secret = conf['client_secret']
+    elseif env_client_secret then
+        client_secret = env_client_secret
     end
 
     if not key then
