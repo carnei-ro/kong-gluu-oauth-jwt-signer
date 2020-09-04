@@ -239,7 +239,14 @@ function plugin:access(conf)
             local m, err = ngx.re.match(uri_args["state"], "uri=(?<uri>.+)")
 
             if m then
-                return ngx.redirect(m["uri"])
+                if conf.jwt_at_payload then
+                    return kong.response.exit(conf.jwt_at_payload_http_code, {[conf.jwt_at_payload_key]=jwt}, {
+                        ['Set-Cookie']=(cookie_name .. "=" .. jwt .. cookie_tail),
+                        ['Location']=m["uri"]
+                    })
+                else
+                    return ngx.redirect(m["uri"])
+                end
             else
                 return ngx.exit(ngx.BAD_REQUEST)
             end
@@ -254,6 +261,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-4"
+plugin.VERSION = "0.0-5"
 
 return plugin

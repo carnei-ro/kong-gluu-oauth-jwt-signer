@@ -79,6 +79,21 @@ return {
                     required = true,
                 }
             } },
+            { jwt_at_payload = {
+                type = "boolean",
+                default = false,
+                required = true
+            } },
+            { jwt_at_payload_http_code = {
+                type = "number",
+                default = 200,
+                required = true
+            } },
+            { jwt_at_payload_key = {
+                type = "string",
+                default = "access_token",
+                required = true
+            } },
         },
     },
   },
