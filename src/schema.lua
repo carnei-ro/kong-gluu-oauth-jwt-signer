@@ -94,6 +94,11 @@ return {
                 default = "access_token",
                 required = true
             } },
+            { jwt_at_url_args = {
+                type = "boolean",
+                default = false,
+                required = true
+            } }
         },
     },
   },
