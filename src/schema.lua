@@ -98,7 +98,12 @@ return {
                 type = "boolean",
                 default = false,
                 required = true
-            } }
+            } },
+            { jwt_at_url_args_key = {
+                type = "string",
+                default = "access_token",
+                required = true
+            } },
         },
     },
   },
