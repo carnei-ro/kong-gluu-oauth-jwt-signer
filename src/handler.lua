@@ -245,7 +245,11 @@ function plugin:access(conf)
                         ['Location']=m["uri"]
                     })
                 else
-                    return ngx.redirect(m["uri"])
+                    if conf.jwt_at_url_args then
+                        return ngx.redirect(m["uri"] .."?" .. ngx.encode_args({[conf.jwt_at_url_args_key]=jwt}))
+                    else
+                        return ngx.redirect(m["uri"])
+                    end
                 end
             else
                 return ngx.exit(ngx.BAD_REQUEST)
@@ -261,6 +265,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-5"
+plugin.VERSION = "0.0-6"
 
 return plugin
