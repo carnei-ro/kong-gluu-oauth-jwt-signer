@@ -26,6 +26,10 @@ return {
                 default = "oauth_jwt",
                 required = true
             } },
+            { cookie_domain = {
+                type = "string",
+                required = false
+            } },
             { secure_cookies = {
                 type = "boolean",
                 default = true,

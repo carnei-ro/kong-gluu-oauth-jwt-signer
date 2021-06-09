@@ -28,6 +28,7 @@ plugins:
     gluu_url: <empty> #REQUIRED
     jwt_validity: 86400
     cookie_name: oauth_jwt
+    cookie_domain: null # e.g.: .example.com
     secure_cookies: true
     http_only_cookies: true
     issuer: Kong

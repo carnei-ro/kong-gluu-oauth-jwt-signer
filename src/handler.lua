@@ -63,6 +63,7 @@ function plugin:access(conf)
 
     local jwt_validity         = conf['jwt_validity']
     local cookie_name          = conf['cookie_name']
+    local cookie_domain        = conf['cookie_domain']
     local secure_cookies       = conf['secure_cookies']
     local http_only_cookies    = conf['http_only_cookies']
     local issuer               = conf['issuer'] or plugin_name
@@ -231,6 +232,9 @@ function plugin:access(conf)
             if http_only_cookies then
                 cookie_tail = cookie_tail .. ";httponly"
             end
+            if cookie_domain then
+                cookie_tail = cookie_tail .. ";domain=" .. cookie_domain
+            end
 
             ngx.header["Set-Cookie"] = {
               cookie_name .. "=" .. jwt .. cookie_tail
@@ -265,6 +269,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-6"
+plugin.VERSION = "0.0-7"
 
 return plugin
