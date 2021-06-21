@@ -1,5 +1,9 @@
 # Kong GLUU OAuth JWT Signer
 
+:warning: **Deprecated** :warning:
+
+**Consider using https://github.com/carnei-ro/kong-plugin-oauth-jwt and https://github.com/carnei-ro/kong-plugin-oauth-jwt-signer**
+
 # Use
 
 Use with https://github.com/carnei-ro/kong-oauth-jwt-plugin  
