@@ -45,7 +45,7 @@ plugins:
     - profile
     - openid
     jwt_at_payload: false
-    jwt_at_payload_http_code: 200
+    jwt_at_payload_http_code: 302
     jwt_at_payload_key: access_token
     jwt_at_url_args: false
     jwt_at_url_args_key: access_token
