@@ -108,6 +108,12 @@ return {
                 default = "access_token",
                 required = true
             } },
+            { userinfo_to_claims = {
+                type = "array",
+                elements = { type = "string", match = "^[^:]+:.*$" },
+                default = {},
+                required = false
+            } }
         },
     },
   },

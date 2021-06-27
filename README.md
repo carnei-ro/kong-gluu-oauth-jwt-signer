@@ -38,6 +38,7 @@ plugins:
     issuer: Kong
     callback_uri: /_oauth
     callback_scheme: null
+    userinfo_to_claims: {} # list of userinfo attributes to be added to the signed token as claims
     private_key_id: 12345678-1234-1234-1234-123456789ABC
     ssl_verify: true
     scopes:
@@ -65,6 +66,10 @@ Configure the signer route:
   - config:
       client_id: your-consumer-key-here
       client_secret: your-client-secret-here
+      userinfo_to_claims:
+        - sub:gluu_sub
+        - email:user_email
+        - name:user_name
       private_key_id: key-id-from-jwt_signer_private_keys
       gluu_url: https://gluu.carnei.ro
     name: kong-gluu-oauth-jwt-signer

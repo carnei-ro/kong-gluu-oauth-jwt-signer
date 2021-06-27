@@ -222,6 +222,13 @@ function plugin:access(conf)
             claims["roles"] = profile["roles"] and profile["roles"] or nil
             claims["provider"] = "gluu"
 
+            if conf.userinfo_to_claims then
+                for _,map in pairs(conf.userinfo_to_claims) do
+                    local userinfo, claim = map:match("^([^:]+):*(.-)$")
+                    claims[claim] = profile[userinfo] and profile[userinfo] or nil
+                end
+            end
+
             local jwt = sign(claims,key,private_key_id)
 
             local expires      = ngx.time() + jwt_validity
@@ -269,6 +276,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-7"
+plugin.VERSION = "0.0-8"
 
 return plugin
