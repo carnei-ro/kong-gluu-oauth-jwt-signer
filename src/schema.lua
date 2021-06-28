@@ -108,6 +108,27 @@ return {
                 default = "access_token",
                 required = true
             } },
+            { userinfo_to_claims = {
+                type = "set",
+                elements = {
+                  type = "record",
+                  required = true,
+                  fields = {
+                    { claim = {
+                      type = "string",
+                      required = true,
+                      not_one_of = { "sub" },
+                      err = "'sub' claim cannot be overridden"
+                    }, },
+                    { userinfo = {
+                      type = "string",
+                      required = true,
+                    }, },
+                  },
+                },
+                required = true,
+                default = {},
+          } },
         },
     },
   },

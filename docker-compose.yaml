@@ -12,23 +12,12 @@ services:
     environment:
       - POSTGRES_USER=kong
       - POSTGRES_DB=kong
+      - POSTGRES_HOST_AUTH_METHOD=trust
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  kong-migration:
-    image: kong:2.0.3-centos
-    command: "kong migrations bootstrap ; kong migrations list ; kong migrations up"
-    restart: on-failure
-    environment:
-      KONG_PG_HOST: kong-database
-    links:
-      - kong-database
-    depends_on:
-      - kong-database
-
 
   kong:
     image: kong:2.0.3-centos
@@ -71,6 +60,9 @@ services:
         ln -s /plugin-development/src /usr/local/share/lua/5.1/kong/plugins/${NAME}
         #  ln -s /plugin-development/jwt-src /usr/local/share/lua/5.1/kong/plugins/kong-oauth-jwt-plugin
         sed -i "/proxy_set_header.*X-Forwarded-For/d; /proxy_set_header.*X-Real-IP/d;" /usr/local/share/lua/5.1/kong/templates/nginx_kong.lua
+        kong migrations bootstrap
+        kong migrations list
+        kong migrations up
         /usr/local/bin/kong start --run-migrations --vv
     ports:
       - "80:8000"
