@@ -222,11 +222,8 @@ function plugin:access(conf)
             claims["roles"] = profile["roles"] and profile["roles"] or nil
             claims["provider"] = "gluu"
 
-            if conf.userinfo_to_claims then
-                for _,map in pairs(conf.userinfo_to_claims) do
-                    local userinfo, claim = map:match("^([^:]+):*(.-)$")
-                    claims[claim] = profile[userinfo] and profile[userinfo] or nil
-                end
+            for _,userinfo_to_claim in ipairs(conf.userinfo_to_claims) do
+                claims[userinfo_to_claim.claim] = profile[userinfo_to_claim.userinfo] and profile[userinfo_to_claim.userinfo] or nil
             end
 
             local jwt = sign(claims,key,private_key_id)
