@@ -229,9 +229,8 @@ function plugin:access(conf)
 
             local jwt = sign(claims,key,private_key_id)
 
-            local expires      = ngx.cookie_time(ngx.time() + jwt_validity)
-            local maxAge       = jwt_validity * 1000
-            local cookie_tail  = ";version=1;path=/;Max-Age=" .. maxAge .. ';Expires=' .. expires
+            local maxAge       = (jwt_validity - 5)
+            local cookie_tail  = ";version=1;path=/;Max-Age=" .. maxAge
             
             if same_site then
                 cookie_tail = cookie_tail .. ";same_site=" .. same_site
