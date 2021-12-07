@@ -35,6 +35,15 @@ return {
                 default = true,
                 required = true
             } },
+            { same_site = {
+                type = "string",
+                required = false,
+                one_of = {
+                    "Strict",
+                    "Lax",
+                    "None"
+                }
+            } },
             { http_only_cookies = {
                 type = "boolean",
                 default = true,

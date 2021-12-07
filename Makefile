@@ -91,7 +91,7 @@ config:
 	@curl -s -X POST http://localhost:8001/services/ -d 'name=oauth' -d url=http://127.0.0.1
 	@curl -s -X POST http://localhost:8001/services/oauth/routes -d 'paths[]=/auth/gluu/callback' -d "name=callback"
 	#@curl -i -X POST http://localhost:8001/services/oauth/plugins -d "name=${NAME}" -d "config.client_secret=$$(grep client_secret cred | awk '{print $$NF}')" -d "config.client_id=$$(grep client_id cred | awk '{print $$NF}')" -d "config.secure_cookies=false" -d "config.http_only_cookies=false" -d "config.gluu_url=https://login.carnei.ro" -d "config.callback_uri=/auth/gluu/callback" -d "config.scopes[]=email" -d "config.scopes[]=openid" -d "config.scopes[]=profile" -d "config.scopes[]=kong_permission" 
-	@curl -i -X POST http://localhost:8001/services/oauth/plugins -d "name=${NAME}" -d "config.secure_cookies=false" -d "config.http_only_cookies=false" -d "config.gluu_url=https://login.carnei.ro" -d "config.callback_uri=/auth/gluu/callback" -d "config.scopes[]=email" -d "config.scopes[]=openid" -d "config.scopes[]=profile" -d "config.scopes[]=kong_permission" 
+	@curl -i -X POST http://localhost:8001/services/oauth/plugins -d "name=${NAME}" -d "config.secure_cookies=false" -d "config.same_site=None" -d "config.http_only_cookies=false" -d "config.gluu_url=https://login.carnei.ro" -d "config.callback_uri=/auth/gluu/callback" -d "config.scopes[]=email" -d "config.scopes[]=openid" -d "config.scopes[]=profile" -d "config.scopes[]=kong_permission" 
 
 config-jwt-remove:
 	@curl -i -X DELETE http://localhost:8001/plugins/$$(curl -s http://localhost:8001/plugins/ | jq -r ".data[] |  select (.name|test(\"${NAME}\")) .id")
