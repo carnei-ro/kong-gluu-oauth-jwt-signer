@@ -34,6 +34,7 @@ plugins:
     cookie_name: oauth_jwt
     cookie_domain: null # e.g.: .example.com
     secure_cookies: true
+    same_site: None # allowed values: Strict, Lax and None
     http_only_cookies: true
     issuer: Kong
     callback_uri: /_oauth
