@@ -65,6 +65,7 @@ function plugin:access(conf)
     local cookie_name          = conf['cookie_name']
     local cookie_domain        = conf['cookie_domain']
     local secure_cookies       = conf['secure_cookies']
+    local same_site            = conf['same_site']
     local http_only_cookies    = conf['http_only_cookies']
     local issuer               = conf['issuer'] or plugin_name
     local cb_uri               = conf['callback_uri'] or "/_oauth"
@@ -228,8 +229,12 @@ function plugin:access(conf)
 
             local jwt = sign(claims,key,private_key_id)
 
-            local expires      = ngx.time() + jwt_validity
-            local cookie_tail  = ";version=1;path=/;Max-Age=" .. expires
+            local maxAge       = (jwt_validity - 5)
+            local cookie_tail  = ";version=1;path=/;Max-Age=" .. maxAge
+            
+            if same_site then
+                cookie_tail = cookie_tail .. ";SameSite=" .. same_site
+            end
             if secure_cookies then
                 cookie_tail = cookie_tail .. ";secure"
             end
@@ -273,6 +278,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-8"
+plugin.VERSION = "0.0-9"
 
 return plugin
