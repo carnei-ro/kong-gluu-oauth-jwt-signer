@@ -233,7 +233,7 @@ function plugin:access(conf)
             local cookie_tail  = ";version=1;path=/;Max-Age=" .. maxAge
             
             if same_site then
-                cookie_tail = cookie_tail .. ";same_site=" .. same_site
+                cookie_tail = cookie_tail .. ";SameSite=" .. same_site
             end
             if secure_cookies then
                 cookie_tail = cookie_tail .. ";secure"
