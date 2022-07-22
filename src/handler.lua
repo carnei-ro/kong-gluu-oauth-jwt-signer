@@ -11,7 +11,7 @@ local openssl_pkey         = require "resty.openssl.pkey"
 local pl                   = require('pl.pretty')
 local ngx_log              = ngx.log
 local ngx_ERR              = ngx.ERR
-local encode_base64        = ngx.encode_base64
+local encode_base64        = require("ngx.base64").encode_base64url
 local ngx_b64              = require("ngx.base64")
 local table_concat         = table.concat
 
@@ -80,6 +80,10 @@ function plugin:access(conf)
     local authorize_url        = conf['gluu_url'] .. '/oxauth/restv1/authorize'
     local access_token_url     = conf['gluu_url'] .. '/oxauth/restv1/token'
     local userinfo_url         = conf['gluu_url'] .. '/oxauth/restv1/userinfo'
+    local gluu_host            = conf['gluu_host']
+    if gluu_host then
+        authorize_url = 'https://' .. gluu_host .. '/oxauth/restv1/authorize'
+    end
 
     local key, client_id, client_secret = nil, nil, nil
     if private_keys[private_key_id] then
@@ -113,10 +117,10 @@ function plugin:access(conf)
         headers['alg']='RS512'
         headers['typ']='JWT'
         headers['kid']=private_key_id
-        local h=encode_base64(json.encode(headers)):gsub("==$", ""):gsub("=$", "")
-        local c = encode_base64(json.encode(claims)):gsub("==$", ""):gsub("=$", "")
+        local h=encode_base64(json.encode(headers)):gsub("+", "-"):gsub("/", "_")
+        local c = encode_base64(json.encode(claims)):gsub("+", "-"):gsub("/", "_")
         local data = h .. '.' .. c
-        
+
         local pkey = openssl_pkey.new(key)
         local digest = openssl_digest.new("sha512")
         digest:update(data)
@@ -124,7 +128,7 @@ function plugin:access(conf)
         if err then
           return nil, err
         end
-        return(data .. ".".. encode_base64(signature):gsub("+", "-"):gsub("/", "_"):gsub("==$", ""):gsub("=$", ""))
+        return(data .. ".".. encode_base64(signature):gsub("+", "-"):gsub("/", "_"))
     end
 
     local function redirect_to_auth()
@@ -141,6 +145,12 @@ function plugin:access(conf)
         local request = http.new()
 
         request:set_timeout(3000)
+        local headers = {
+            ["Content-type"] = "application/x-www-form-urlencoded"
+        }
+        if gluu_host then
+            headers['host'] = gluu_host
+        end
 
         local res, err = request:request_uri(access_token_url, {
             method = "POST",
@@ -151,9 +161,7 @@ function plugin:access(conf)
                 redirect_uri  = cb_url,
                 grant_type    = "authorization_code",
             }),
-            headers = {
-                ["Content-type"] = "application/x-www-form-urlencoded"
-            },
+            headers = headers,
             ssl_verify = ssl_verify,
         })
         if not res then
@@ -171,12 +179,17 @@ function plugin:access(conf)
         local request = http.new()
 
         request:set_timeout(3000)
+        local headers = {}
+        if gluu_host then
+            headers['host'] = gluu_host
+        end
 
         local res, err = request:request_uri(userinfo_url .. "?" .. ngx.encode_args({
                 authorization = id_token,
                 access_token  = access_token
             }), {
             method = "GET",
+            headers = headers,
             ssl_verify = ssl_verify,
         })
         if not res then
@@ -231,7 +244,7 @@ function plugin:access(conf)
 
             local maxAge       = (jwt_validity - 5)
             local cookie_tail  = ";version=1;path=/;Max-Age=" .. maxAge
-            
+
             if same_site then
                 cookie_tail = cookie_tail .. ";SameSite=" .. same_site
             end
@@ -278,6 +291,6 @@ function plugin:access(conf)
 end
 
 plugin.PRIORITY = 1000
-plugin.VERSION = "0.0-9"
+plugin.VERSION = "0.0-10"
 
 return plugin

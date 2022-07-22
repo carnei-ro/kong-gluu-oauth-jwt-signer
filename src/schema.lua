@@ -77,6 +77,10 @@ return {
                 type = "string",
                 required = true
             } },
+            { gluu_host = {
+                type = "string",
+                required = false
+            } },
             { scopes = {
                 type = "array",
                 elements = { type = "string" },
