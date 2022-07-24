@@ -71,6 +71,7 @@ function plugin:access(conf)
     local cb_uri               = conf['callback_uri'] or "/_oauth"
     local private_key_id       = conf['private_key_id']
     local ssl_verify           = conf['ssl_verify']
+    local keepalive            = conf['keepalive']
     local cb_scheme            = conf['callback_scheme'] or scheme
     local cb_server_name       = ngx.req.get_headers()["Host"]
     local cb_url               = cb_scheme .. "://" .. cb_server_name .. cb_uri
@@ -163,6 +164,7 @@ function plugin:access(conf)
             }),
             headers = headers,
             ssl_verify = ssl_verify,
+            keepalive = keepalive,
         })
         if not res then
             return nil, (err or "auth token request failed: " .. (err or "unknown reason"))
@@ -191,6 +193,7 @@ function plugin:access(conf)
             method = "GET",
             headers = headers,
             ssl_verify = ssl_verify,
+            keepalive = keepalive,
         })
         if not res then
             return nil, "auth info request failed: " .. (err or "unknown reason")

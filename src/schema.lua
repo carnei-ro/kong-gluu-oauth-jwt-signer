@@ -73,6 +73,11 @@ return {
                 default = true,
                 required = true
             } },
+            { keepalive = {
+                type = "boolean",
+                default = true,
+                required = true
+            } },
             { gluu_url = {
                 type = "string",
                 required = true
